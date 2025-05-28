@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Underworld Ascent - Criminal Empire</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+    <style>
+        :root {
+            --primary-dark: #0a0a0a;
+            --secondary-dark: #1a1a1a;
+            --accent-neon: #00ff88;
+            --accent-red: #ff0044;
+            --accent-blue: #0088ff;
+            --text-light: #e0e0e0;
+            --text-muted: #888;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            color: var(--text-light);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            margin: 0;
+            background-attachment: fixed;
+        }
+
+        .navbar {
+            background: rgba(10, 10, 10, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--accent-neon);
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
+        }
+
+        .navbar-brand {
+            color: var(--accent-neon) !important;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--accent-neon);
+        }
+
+        .navbar-nav .nav-link {
+            color: var(--text-light) !important;
+            transition: all 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .navbar-nav .nav-link:hover,
+        .navbar-nav .nav-link.active {
+            color: var(--accent-neon) !important;
+            text-shadow: 0 0 5px var(--accent-neon);
+        }
+
+        .page-section {
+            display: none;
+            padding: 20px 0;
+            min-height: calc(100vh - 80px);
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        .stats-card {
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid var(--accent-neon);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.2);
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+        }
+
+        .stat-bar {
+            width: 100px;
+            height: 10px;
+            background: #333;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .stat-fill {
+            height: 100%;
+            border-radius: 5px;
+            transition: width 0.3s ease;
+        }
+
+        .energy-fill { background: var(--accent-blue); }
+        .nerve-fill { background: var(--accent-red); }
+        .health-fill { background: var(--accent-neon); }
+
+        .game-card {
+            background: rgba(26, 26, 26, 0.95);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .game-card:hover {
+            border-color: var(--accent-neon);
+            box-shadow: 0 15px 40px rgba(0, 255, 136, 0.2);
+        }
+
+        .btn-neon {
+            background: linear-gradient(45deg, var(--accent-neon), #00aa66);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+            color: #000;
+        }
+
+        .btn-danger-neon {
+            background: linear-gradient(45deg, var(--accent-red), #cc0033);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 5px 15px rgba(255, 0, 68, 0.3);
+        }
+
+        .btn-danger-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 68, 0.5);
+            color: #fff;
+        }
+
+        .mission-result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-neon);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .combat-log {
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid #333;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .shop-item {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .shop-item:hover {
+            border-color: var(--accent-neon);
+            background: rgba(0, 255, 136, 0.05);
+        }
+
+        .inventory-item {
+            background: rgba(26, 26, 26, 0.8);
+            border: 1px solid var(--accent-blue);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ton-wallet {
+            background: rgba(0, 136, 255, 0.1);
+            border: 1px solid var(--accent-blue);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .neon-text {
+            color: var(--accent-neon);
+            text-shadow: 0 0 10px var(--accent-neon);
+        }
+
+        .hero-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 136, 255, 0.1) 100%);
+            border-radius: 20px;
+            margin: 20px 0;
+        }
+
+        .hero-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-neon);
+            text-shadow: 0 0 20px var(--accent-neon);
+            margin-bottom: 20px;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            margin-bottom: 30px;
+        }
+
+        .feature-list {
+            text-align: left;
+            margin: 30px 0;
+        }
+
+        .feature-item {
+            margin: 10px 0;
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 5px;
+            border-left: 3px solid var(--accent-neon);
+        }
+
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 2rem;
+            }
+            
+            .stats-card {
+                padding: 15px;
+            }
+            
+            .game-card {
+                padding: 20px;
+            }
+            
+            .btn-neon, .btn-danger-neon {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(0, 255, 136, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 136, 0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#" onclick="showPage('home')">
+                <i class="fas fa-skull"></i> Underworld Ascent
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#" onclick="showPage('home')">
+                            <i class="fas fa-home"></i> Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('missions')">
+                            <i class="fas fa-mask"></i> Missions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('combat')">
+                            <i class="fas fa-fist-raised"></i> Combat
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('shop')">
+                            <i class="fas fa-shopping-cart"></i> Shop
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" onclick="showPage('profile')">
+                            <i class="fas fa-user"></i> Profile
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container" style="margin-top: 80px;">
+        <!-- Player Stats (Always Visible) -->
+        <div class="row">
+            <div class="col-12">
+                <div class="stats-card">
+                    <div class="row">
+                        <div class="col-md-3 col-6">
+                            <div class="stat-item">
+                                <span><i class="fas fa-bolt"></i> Energy</span>
+                                <div class="d-flex align-items-center">
+                                    <span id="energy-text">10/10</span>
+                                    <div class="stat-bar ms-2">
+                                        <div class="stat-fill energy-fill" id="energy-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-item">
+                                <span><i class="fas fa-brain"></i> Nerve</span>
+                                <div class="d-flex align-items-center">
+                                    <span id="nerve-text">5/5</span>
+                                    <div class="stat-bar ms-2">
+                                        <div class="stat-fill nerve-fill" id="nerve-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-item">
+                                <span><i class="fas fa-heart"></i> Health</span>
+                                <div class="d-flex align-items-center">
+                                    <span id="health-text">100/100</span>
+                                    <div class="stat-bar ms-2">
+                                        <div class="stat-fill health-fill" id="health-bar" style="width: 100%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="stat-item">
+                                <span><i class="fas fa-coins"></i> Credits</span>
+                                <span id="credits-text" class="neon-text">1000</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Home Page -->
+        <div id="home-page" class="page-section active">
+            <div class="hero-section">
+                <h1 class="hero-title">Welcome to the Underworld</h1>
+                <p class="hero-subtitle">Build your criminal empire in this modern text-based MMORPG</p>
+                <div class="row">
+                    <div class="col-lg-6 offset-lg-3">
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <strong>🚀 Faster Progression:</strong> 70% success rates for new players vs traditional grind-heavy gameplay
+                            </div>
+                            <div class="feature-item">
+                                <strong>🎯 Solo-Friendly:</strong> Complete missions independently without faction dependencies
+                            </div>
+                            <div class="feature-item">
+                                <strong>⚖️ Ethical Choices:</strong> Make moral decisions that shape your reputation and story
+                            </div>
+                            <div class="feature-item">
+                                <strong>📱 Modern UI:</strong> Responsive design optimized for all devices
+                            </div>
+                            <div class="feature-item">
+                                <strong>💎 Crypto Payments:</strong> Real TON blockchain integration for in-game purchases
+                            </div>
+                        </div>
+                        <button class="btn btn-neon btn-lg pulse" onclick="showPage('missions')">
+                            Start Your Criminal Career
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Missions Page -->
+        <div id="missions-page" class="page-section">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="game-card">
+                        <h2 class="neon-text"><i class="fas fa-mask"></i> Criminal Missions</h2>
+                        <p class="text-muted">Choose your approach and make ethical decisions that impact your reputation.</p>
+                        
+                        <div class="mission-card">
+                            <h4><i class="fas fa-store"></i> Rob a Store</h4>
+                            <p>A small convenience store with minimal security. Perfect for a quick score, but how will you handle it?</p>
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <button class="btn btn-neon w-100 mb-2" onclick="startMission('stealth')" id="stealth-btn">
+                                        <i class="fas fa-eye-slash"></i> Stealth Approach
+                                        <small class="d-block">Higher success with Agility</small>
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button class="btn btn-danger-neon w-100 mb-2" onclick="startMission('force')" id="force-btn">
+                                        <i class="fas fa-fist-raised"></i> Force Approach
+                                        <small class="d-block">Higher reward, more risk</small>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="mission-result" class="mission-result" style="display: none;">
+                                <!-- Mission results will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Combat Page -->
+        <div id="combat-page" class="page-section">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="game-card">
+                        <h2 class="neon-text"><i class="fas fa-fist-raised"></i> Street Combat</h2>
+                        <p class="text-muted">Face off against street thugs and rival criminals.</p>
+                        
+                        <div id="combat-area">
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <h5>You</h5>
+                                    <div class="stat-item">
+                                        <span>Health</span>
+                                        <span id="player-combat-health">100</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Strength</span>
+                                        <span>15</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h5 id="enemy-name">Street Thug</h5>
+                                    <div class="stat-item">
+                                        <span>Health</span>
+                                        <span id="enemy-health">80</span>
+                                    </div>
+                                    <div class="stat-item">
+                                        <span>Strength</span>
+                                        <span id="enemy-strength">12</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="combat-log" id="combat-log">
+                                <p>You encounter a Street Thug in a dark alley. They look ready for a fight!</p>
+                            </div>
+                            
+                            <div class="row" id="combat-actions">
+                                <div class="col-md-4">
+                                    <button class="btn btn-danger-neon w-100 mb-2" onclick="combatAction('attack')">
+                                        <i class="fas fa-sword"></i> Attack
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-neon w-100 mb-2" onclick="combatAction('dodge')">
+                                        <i class="fas fa-shield-alt"></i> Dodge
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-warning w-100 mb-2" onclick="combatAction('flee')">
+                                        <i class="fas fa-running"></i> Flee
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="combat-result" style="display: none;">
+                                <button class="btn btn-neon" onclick="resetCombat()">Fight Another Thug</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shop Page -->
+        <div id="shop-page" class="page-section">
+            <div class="row">
+                <div class="col-lg-10 offset-lg-1">
+                    <div class="game-card">
+                        <h2 class="neon-text"><i class="fas fa-shopping-cart"></i> Underground Market</h2>
+                        <p class="text-muted">Purchase weapons, items, and upgrades using TON cryptocurrency.</p>
+                        
+                        <!-- TON Wallet Connection -->
+                        <div class="ton-wallet">
+                            <h5><i class="fab fa-bitcoin"></i> TON Wallet</h5>
+                            <div id="ton-connect"></div>
+                            <p class="mt-2 text-muted">Connect your TON wallet to make purchases</p>
+                            <div id="wallet-info" style="display: none;">
+                                <p>Connected: <span id="wallet-address"></span></p>
+                                <p>Balance: <span id="wallet-balance">0</span> TON</p>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4><i class="fas fa-sword"></i> Weapons</h4>
+                                
+                                <div class="shop-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6><i class="fas fa-cut"></i> Combat Knife</h6>
+                                            <p class="text-muted mb-1">+5 Attack Damage</p>
+                                            <small class="text-success">Increases combat effectiveness</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="neon-text fw-bold">0.1 TON</div>
+                                            <button class="btn btn-neon btn-sm mt-1" onclick="purchaseItem('knife', 0.1)">
+                                                Buy Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="shop-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6><i class="fas fa-gun"></i> Pistol</h6>
+                                            <p class="text-muted mb-1">+15 Attack Damage</p>
+                                            <small class="text-success">High damage weapon</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="neon-text fw-bold">0.5 TON</div>
+                                            <button class="btn btn-neon btn-sm mt-1" onclick="purchaseItem('pistol', 0.5)">
+                                                Buy Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h4><i class="fas fa-medkit"></i> Items</h4>
+                                
+                                <div class="shop-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6><i class="fas fa-heart"></i> Health Kit</h6>
+                                            <p class="text-muted mb-1">Restores 50 Health</p>
+                                            <small class="text-success">Essential for survival</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="neon-text fw-bold">0.05 TON</div>
+                                            <button class="btn btn-neon btn-sm mt-1" onclick="purchaseItem('healthkit', 0.05)">
+                                                Buy Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="shop-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6><i class="fas fa-bolt"></i> Energy Drink</h6>
+                                            <p class="text-muted mb-1">Restores 5 Energy</p>
+                                            <small class="text-success">Get back in action faster</small>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="neon-text fw-bold">0.03 TON</div>
+                                            <button class="btn btn-neon btn-sm mt-1" onclick="purchaseItem('energydrink', 0.03)">
+                                                Buy Now
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profile-page" class="page-section">
+            <div class="row">
+                <div class="col-lg-8 offset-lg-2">
+                    <div class="game-card">
+                        <h2 class="neon-text"><i class="fas fa-user"></i> Criminal Profile</h2>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Statistics</h4>
+                                <div class="stat-item">
+                                    <span>Missions Completed</span>
+                                    <span id="missions-completed">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Fights Won</span>
+                                    <span id="fights-won">0</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Reputation</span>
+                                    <span id="reputation" class="neon-text">Newcomer</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Agility</span>
+                                    <span id="agility">10</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span>Strength</span>
+                                    <span id="strength">15</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h4>Inventory</h4>
+                                <div id="inventory-list">
+                                    <p class="text-muted">Your inventory is empty. Visit the shop to purchase items.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4>Recent Activity</h4>
+                            <div id="activity-log" class="combat-log">
+                                <p class="text-muted">Welcome to Underworld Ascent! Your criminal journey begins now.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Game State
+        let gameState = {
+            player: {
+                energy: 10,
+                maxEnergy: 10,
+                nerve: 5,
+                maxNerve: 5,
+                health: 100,
+                maxHealth: 100,
+                credits: 1000,
+                agility: 10,
+                strength: 15,
+                reputation: 'Newcomer',
+                missionsCompleted: 0,
+                fightsWon: 0,
+                inventory: [],
+                activity: ['Welcome to Underworld Ascent! Your criminal journey begins now.']
+            },
+            combat: {
+                playerHealth: 100,
+                enemyHealth: 80,
+                enemyName: 'Street Thug',
+                enemyStrength: 12,
+                inCombat: false
+            },
+            tonConnector: null,
+            walletConnected: false
+        };
+
+        // Initialize TON Connect
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize TON Connect UI
+            const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+                manifestUrl: 'https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json',
+                buttonRootId: 'ton-connect'
+            });
+
+            gameState.tonConnector = tonConnectUI;
+
+            // Listen for wallet connection
+            tonConnectUI.onStatusChange(wallet => {
+                if (wallet) {
+                    gameState.walletConnected = true;
+                    document.getElementById('wallet-info').style.display = 'block';
+                    document.getElementById('wallet-address').textContent = 
+                        wallet.account.address.slice(0, 6) + '...' + wallet.account.address.slice(-4);
+                    
+                    // In a real implementation, you would fetch the actual balance
+                    document.getElementById('wallet-balance').textContent = '10.5';
+                    
+                    addActivity('TON wallet connected successfully!');
+                } else {
+                    gameState.walletConnected = false;
+                    document.getElementById('wallet-info').style.display = 'none';
+                }
+            });
+
+            // Load saved game state
+            loadGameState();
+            updateUI();
+        });
+
+        // Navigation
+        function showPage(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page-section').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // Show selected page
+            document.getElementById(pageId + '-page').classList.add('active');
+            
+            // Update navbar
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        // Update UI Elements
+        function updateUI() {
+            const player = gameState.player;
+            
+            // Update stats display
+            document.getElementById('energy-text').textContent = `${player.energy}/${player.maxEnergy}`;
+            document.getElementById('nerve-text').textContent = `${player.nerve}/${player.maxNerve}`;
+            document.getElementById('health-text').textContent = `${player.health}/${player.maxHealth}`;
+            document.getElementById('credits-text').textContent = player.credits;
+            
+            // Update stat bars
+            document.getElementById('energy-bar').style.width = `${(player.energy / player.maxEnergy) * 100}%`;
+            document.getElementById('nerve-bar').style.width = `${(player.nerve / player.maxNerve) * 100}%`;
+            document.getElementById('health-bar').style.width = `${(player.health / player.maxHealth) * 100}%`;
+            
+            // Update profile page
+            document.getElementById('missions-completed').textContent = player.missionsCompleted;
+            document.getElementById('fights-won').textContent = player.fightsWon;
+            document.getElementById('reputation').textContent = player.reputation;
+            document.getElementById('agility').textContent = player.agility;
+            document.getElementById('strength').textContent = player.strength;
+            
+            // Update inventory
+            updateInventoryDisplay();
+            
+            // Update activity log
+            updateActivityLog();
+            
+            // Update combat health
+            document.getElementById('player-combat-health').textContent = player.health;
+        }
+
+        // Mission System
+        function startMission(approach) {
+            const player = gameState.player;
+            
+            if (player.nerve <= 0) {
+                showResult('Not enough nerve to start a mission!', false);
+                return;
+            }
+            
+            if (player.energy <= 0) {
+                showResult('Not enough energy to start a mission!', false);
+                return;
+            }
+            
+            // Disable buttons during mission
+            document.getElementById('stealth-btn').disabled = true;
+            document.getElementById('force-btn').disabled = true;
+            
+            setTimeout(() => {
+                executeMission(approach);
+                document.getElementById('stealth-btn').disabled = false;
+                document.getElementById('force-btn').disabled = false;
+            }, 2000);
+            
+            showResult('Planning your approach...', true);
+        }
+
+        function executeMission(approach) {
+            const player = gameState.player;
+            let success = false;
+            let reward = 0;
+            let resultText = '';
+            let ethicalChoice = '';
+            
+            // Calculate success rate (70% base for new player friendly)
+            let successRate = 0.7;
+            if (approach === 'stealth') {
+                successRate += (player.agility / 100);
+            } else {
+                successRate += (player.strength / 100);
+            }
+            
+            success = Math.random() < successRate;
+            
+            if (success) {
+                reward = approach === 'force' ? 250 : 150;
+                
+                // Ethical choice for successful missions
+                setTimeout(() => {
+                    showEthicalChoice(approach, reward);
+                }, 1000);
+                
+                if (approach === 'stealth') {
+                    resultText = `
+                        <h5 class="text-success"><i class="fas fa-check-circle"></i> Mission Successful - Stealth Approach</h5>
+                        <p>You silently slip into the store through the back entrance. The clerk doesn't notice as you expertly disable the alarm system and access the register.</p>
+                        <p class="text-success">Base reward: ${reward} credits</p>
+                        <p class="text-info">Your stealth skills served you well. No violence was necessary.</p>
+                    `;
+                } else {
+                    resultText = `
+                        <h5 class="text-success"><i class="fas fa-check-circle"></i> Mission Successful - Force Approach</h5>
+                        <p>You burst through the front door, overwhelming the clerk with your presence. They quickly comply with your demands, fearing for their safety.</p>
+                        <p class="text-success">Base reward: ${reward} credits</p>
+                        <p class="text-warning">The aggressive approach worked, but at what cost to your conscience?</p>
+                    `;
+                }
+            } else {
+                // Mission failed
+                const healthLoss = Math.floor(Math.random() * 20) + 10;
+                player.health -= healthLoss;
+                
+                if (approach === 'stealth') {
+                    resultText = `
+                        <h5 class="text-danger"><i class="fas fa-times-circle"></i> Mission Failed - Stealth Approach</h5>
+                        <p>You trigger a silent alarm while trying to pick the lock. Security arrives quickly, and you barely escape through a window.</p>
+                        <p class="text-danger">Health lost: ${healthLoss}</p>
+                        <p class="text-warning">Better luck next time. Practice makes perfect in the criminal world.</p>
+                    `;
+                } else {
+                    resultText = `
+                        <h5 class="text-danger"><i class="fas fa-times-circle"></i> Mission Failed - Force Approach</h5>
+                        <p>The clerk panics and hits the panic button. You get into a scuffle before police sirens force you to flee empty-handed.</p>
+                        <p class="text-danger">Health lost: ${healthLoss}</p>
+                        <p class="text-warning">Sometimes brute force isn't the answer. Consider your options more carefully.</p>
+                    `;
+                }
+                
+                addActivity(`Mission failed using ${approach} approach. Lost ${healthLoss} health.`);
+            }
+            
+            // Consume resources
+            player.nerve -= 1;
+            player.energy -= 1;
+            
+            showResult(resultText, success);
+            updateUI();
+            saveGameState();
+        }
+
+        function showEthicalChoice(approach, baseReward) {
+            const choices = approach === 'stealth' ? 
+                {
+                    good: { text: 'Leave a note apologizing and take only what you need', bonus: 0.5, rep: 'Merciful Thief' },
+                    neutral: { text: 'Take the planned amount and leave quietly', bonus: 1, rep: 'Professional' },
+                    evil: { text: 'Empty the entire register while they\'re distracted', bonus: 1.5, rep: 'Ruthless Criminal' }
+                } :
+                {
+                    good: { text: 'Threaten but don\'t harm the clerk', bonus: 0.8, rep: 'Honorable Thug' },
+                    neutral: { text: 'Take the money and leave without incident', bonus: 1, rep: 'Efficient Criminal' },
+                    evil: { text: 'Intimidate them into giving you everything', bonus: 1.3, rep: 'Feared Enforcer' }
+                };
+
+            const choiceHtml = `
+                <div class="mt-3">
+                    <h6 class="text-warning"><i class="fas fa-balance-scale"></i> Ethical Choice</h6>
+                    <p>How do you handle this situation?</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <button class="btn btn-success btn-sm w-100 mb-2" onclick="makeEthicalChoice('good', ${baseReward}, '${choices.good.rep}', ${choices.good.bonus})">
+                                ${choices.good.text}
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-warning btn-sm w-100 mb-2" onclick="makeEthicalChoice('neutral', ${baseReward}, '${choices.neutral.rep}', ${choices.neutral.bonus})">
+                                ${choices.neutral.text}
+                            </button>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-danger btn-sm w-100 mb-2" onclick="makeEthicalChoice('evil', ${baseReward}, '${choices.evil.rep}', ${choices.evil.bonus})">
+                                ${choices.evil.text}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('mission-result').innerHTML += choiceHtml;
+        }
+
+        function makeEthicalChoice(choice, baseReward, reputation, multiplier) {
+            const finalReward = Math.floor(baseReward * multiplier);
+            gameState.player.credits += finalReward;
+            gameState.player.reputation = reputation;
+            gameState.player.missionsCompleted += 1;
+            
+            let choiceResult = '';
+            switch(choice) {
+                case 'good':
+                    choiceResult = `<p class="text-success"><i class="fas fa-heart"></i> Your conscience is clear. Reputation: ${reputation}</p>`;
+                    gameState.player.agility += 1; // Good choices improve stealth
+                    break;
+                case 'neutral':
+                    choiceResult = `<p class="text-info"><i class="fas fa-handshake"></i> A professional approach. Reputation: ${reputation}</p>`;
+                    break;
+                case 'evil':
+                    choiceResult = `<p class="text-danger"><i class="fas fa-skull"></i> Maximum profit, but at what cost? Reputation: ${reputation}</p>`;
+                    gameState.player.strength += 1; // Evil choices improve strength
+                    break;
+            }
+            
+            choiceResult += `<p class="text-success"><strong>Final reward: ${finalReward} credits</strong></p>`;
+            
+            // Remove choice buttons and show result
+            const resultDiv = document.getElementById('mission-result');
+            const choiceDiv = resultDiv.querySelector('.mt-3');
+            if (choiceDiv) {
+                choiceDiv.innerHTML = choiceResult;
+            }
+            
+            addActivity(`Completed mission with ${choice} choice. Earned ${finalReward} credits. New reputation: ${reputation}`);
+            updateUI();
+            saveGameState();
+        }
+
+        function showResult(message, success) {
+            const resultDiv = document.getElementById('mission-result');
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+            
+            if (success) {
+                resultDiv.className = 'mission-result';
+            } else {
+                resultDiv.className = 'mission-result border-danger';
+                resultDiv.style.borderLeftColor = 'var(--accent-red)';
+                resultDiv.style.backgroundColor = 'rgba(255, 0, 68, 0.1)';
+            }
+        }
+
+        // Combat System
+        function combatAction(action) {
+            if (!gameState.combat.inCombat) {
+                gameState.combat.inCombat = true;
+                gameState.combat.playerHealth = gameState.player.health;
+            }
+            
+            let logMessage = '';
+            let playerDamage = 0;
+            let enemyDamage = 0;
+            
+            switch(action) {
+                case 'attack':
+                    playerDamage = Math.floor(Math.random() * gameState.player.strength) + 5;
+                    enemyDamage = Math.floor(Math.random() * gameState.combat.enemyStrength) + 3;
+                    
+                    gameState.combat.enemyHealth -= playerDamage;
+                    gameState.combat.playerHealth -= enemyDamage;
+                    
+                    logMessage = `You attack for ${playerDamage} damage! The ${gameState.combat.enemyName} hits back for ${enemyDamage} damage.`;
+                    break;
+                    
+                case 'dodge':
+                    if (Math.random() < 0.6) {
+                        playerDamage = Math.floor(Math.random() * (gameState.player.strength / 2)) + 2;
+                        gameState.combat.enemyHealth -= playerDamage;
+                        logMessage = `You dodge successfully and counter-attack for ${playerDamage} damage!`;
+                    } else {
+                        enemyDamage = Math.floor(Math.random() * gameState.combat.enemyStrength) + 2;
+                        gameState.combat.playerHealth -= enemyDamage;
+                        logMessage = `You fail to dodge and take ${enemyDamage} damage!`;
+                    }
+                    break;
+                    
+                case 'flee':
+                    if (Math.random() < 0.8) {
+                        logMessage = 'You successfully flee from combat!';
+                        resetCombat();
+                        addActivity('Fled from combat with ' + gameState.combat.enemyName);
+                        return;
+                    } else {
+                        enemyDamage = Math.floor(Math.random() * gameState.combat.enemyStrength) + 5;
+                        gameState.combat.playerHealth -= enemyDamage;
+                        logMessage = `You fail to escape and take ${enemyDamage} damage while trying to flee!`;
+                    }
+                    break;
+            }
+            
+            addToCombatLog(logMessage);
+            
+            // Check for combat end
+            if (gameState.combat.enemyHealth <= 0) {
+                const reward = Math.floor(Math.random() * 100) + 50;
+                gameState.player.credits += reward;
+                gameState.player.fightsWon += 1;
+                gameState.player.strength += 1;
+                
+                addToCombatLog(`<span class="text-success">Victory! You defeated the ${gameState.combat.enemyName} and earned ${reward} credits!</span>`);
+                addActivity(`Won fight against ${gameState.combat.enemyName}. Earned ${reward} credits.`);
+                
+                document.getElementById('combat-actions').style.display = 'none';
+                document.getElementById('combat-result').style.display = 'block';
+            } else if (gameState.combat.playerHealth <= 0) {
+                addToCombatLog(`<span class="text-danger">Defeat! You have been knocked out by the ${gameState.combat.enemyName}.</span>`);
+                addActivity(`Lost fight against ${gameState.combat.enemyName}`);
+                
+                gameState.player.health = Math.max(10, gameState.player.health - 20);
+                
+                document.getElementById('combat-actions').style.display = 'none';
+                document.getElementById('combat-result').style.display = 'block';
+            }
+            
+            // Update combat display
+            document.getElementById('player-combat-health').textContent = Math.max(0, gameState.combat.playerHealth);
+            document.getElementById('enemy-health').textContent = Math.max(0, gameState.combat.enemyHealth);
+            
+            updateUI();
+            saveGameState();
+        }
+
+        function addToCombatLog(message) {
+            const log = document.getElementById('combat-log');
+            log.innerHTML += '<p>' + message + '</p>';
+            log.scrollTop = log.scrollHeight;
+        }
+
+        function resetCombat() {
+            gameState.combat = {
+                playerHealth: gameState.player.health,
+                enemyHealth: 80 + Math.floor(Math.random() * 40),
+                enemyName: ['Street Thug', 'Gang Member', 'Rival Criminal', 'Corrupt Cop'][Math.floor(Math.random() * 4)],
+                enemyStrength: 10 + Math.floor(Math.random() * 8),
+                inCombat: false
+            };
+            
+            document.getElementById('combat-log').innerHTML = `<p>You encounter a ${gameState.combat.enemyName} in a dark alley. They look ready for a fight!</p>`;
+            document.getElementById('enemy-name').textContent = gameState.combat.enemyName;
+            document.getElementById('enemy-health').textContent = gameState.combat.enemyHealth;
+            document.getElementById('enemy-strength').textContent = gameState.combat.enemyStrength;
+            
+            document.getElementById('combat-actions').style.display = 'block';
+            document.getElementById('combat-result').style.display = 'none';
+        }
+
+        // Shop System
+        async function purchaseItem(itemId, price) {
+            if (!gameState.walletConnected) {
+                alert('Please connect your TON wallet first!');
+                return;
+            }
+            
+            try {
+                // Create transaction for TON payment
+                const transaction = {
+                    validUntil: Math.floor(Date.now() / 1000) + 60, // 60 seconds
+                    messages: [
+                        {
+                            address: "EQCD39VS5jcptHL8vMjEXrzGaRcCVYto7HUn4bpAOg8xqB2N", // Test address
+                            amount: (price * 1000000000).toString(), // Convert TON to nanoTON
+                            payload: btoa("Purchase: " + itemId) // Base64 encode the payload
+                        }
+                    ]
+                };
+
+                const result = await gameState.tonConnector.sendTransaction(transaction);
+                
+                if (result) {
+                    // Transaction successful, add item to inventory
+                    addItemToInventory(itemId);
+                    addActivity(`Purchased ${getItemName(itemId)} for ${price} TON`);
+                    alert(`Successfully purchased ${getItemName(itemId)}!`);
+                }
+            } catch (error) {
+                console.error('Transaction failed:', error);
+                
+                // For demo purposes, allow purchase without actual payment
+                if (confirm(`Transaction failed. Would you like to proceed with demo purchase of ${getItemName(itemId)}?`)) {
+                    addItemToInventory(itemId);
+                    addActivity(`Demo purchase: ${getItemName(itemId)}`);
+                }
+            }
+        }
+
+        function addItemToInventory(itemId) {
+            const items = {
+                knife: { name: 'Combat Knife', description: '+5 Attack Damage', effect: 'strength' },
+                pistol: { name: 'Pistol', description: '+15 Attack Damage', effect: 'strength' },
+                healthkit: { name: 'Health Kit', description: 'Restores 50 Health', effect: 'health' },
+                energydrink: { name: 'Energy Drink', description: 'Restores 5 Energy', effect: 'energy' }
+            };
+            
+            const item = items[itemId];
+            if (item) {
+                gameState.player.inventory.push({
+                    id: itemId,
+                    name: item.name,
+                    description: item.description,
+                    effect: item.effect
+                });
+                
+                // Apply item effects immediately for consumables
+                if (itemId === 'healthkit') {
+                    gameState.player.health = Math.min(gameState.player.maxHealth, gameState.player.health + 50);
+                } else if (itemId === 'energydrink') {
+                    gameState.player.energy = Math.min(gameState.player.maxEnergy, gameState.player.energy + 5);
+                } else if (itemId === 'knife') {
+                    gameState.player.strength += 5;
+                } else if (itemId === 'pistol') {
+                    gameState.player.strength += 15;
+                }
+                
+                updateUI();
+                saveGameState();
+            }
+        }
+
+        function getItemName(itemId) {
+            const names = {
+                knife: 'Combat Knife',
+                pistol: 'Pistol',
+                healthkit: 'Health Kit',
+                energydrink: 'Energy Drink'
+            };
+            return names[itemId] || itemId;
+        }
+
+        function updateInventoryDisplay() {
+            const inventoryList = document.getElementById('inventory-list');
+            
+            if (gameState.player.inventory.length === 0) {
+                inventoryList.innerHTML = '<p class="text-muted">Your inventory is empty. Visit the shop to purchase items.</p>';
+                return;
+            }
+            
+            let html = '';
+            gameState.player.inventory.forEach((item, index) => {
+                html += `
+                    <div class="inventory-item">
+                        <div>
+                            <strong>${item.name}</strong>
+                            <br><small class="text-muted">${item.description}</small>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" onclick="removeItem(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            });
+            
+            inventoryList.innerHTML = html;
+        }
+
+        function removeItem(index) {
+            gameState.player.inventory.splice(index, 1);
+            updateInventoryDisplay();
+            saveGameState();
+        }
+
+        // Activity Log
+        function addActivity(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            gameState.player.activity.unshift(`[${timestamp}] ${message}`);
+            
+            // Keep only last 10 activities
+            if (gameState.player.activity.length > 10) {
+                gameState.player.activity = gameState.player.activity.slice(0, 10);
+            }
+        }
+
+        function updateActivityLog() {
+            const activityLog = document.getElementById('activity-log');
+            const activities = gameState.player.activity.slice(0, 5); // Show last 5
+            
+            let html = '';
+            activities.forEach(activity => {
+                html += `<p>${activity}</p>`;
+            });
+            
+            activityLog.innerHTML = html;
+        }
+
+        // Save/Load Game State
+        function saveGameState() {
+            try {
+                localStorage.setItem('underworldAscent', JSON.stringify(gameState));
+            } catch (error) {
+                console.warn('Could not save game state:', error);
+            }
+        }
+
+        function loadGameState() {
+            try {
+                const saved = localStorage.getItem('underworldAscent');
+                if (saved) {
+                    const loadedState = JSON.parse(saved);
+                    // Merge with default state to handle new properties
+                    gameState.player = { ...gameState.player, ...loadedState.player };
+                    gameState.combat = { ...gameState.combat, ...loadedState.combat };
+                }
+            } catch (error) {
+                console.warn('Could not load game state:', error);
+            }
+        }
+
+        // Auto-save every 30 seconds
+        setInterval(saveGameState, 30000);
+
+        // Energy regeneration (1 energy every 2 minutes)
+        setInterval(() => {
+            if (gameState.player.energy < gameState.player.maxEnergy) {
+                gameState.player.energy += 1;
+                updateUI();
+                saveGameState();
+            }
+        }, 120000);
+
+        // Nerve regeneration (1 nerve every 5 minutes)
+        setInterval(() => {
+            if (gameState.player.nerve < gameState.player.maxNerve) {
+                gameState.player.nerve += 1;
+                updateUI();
+                saveGameState();
+            }
+        }, 300000);
+    </script>
+</body>
+</html>
